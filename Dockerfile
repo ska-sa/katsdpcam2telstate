@@ -1,5 +1,5 @@
 FROM sdp-docker-registry.kat.ac.za:5000/docker-base-build as build
-MAINTAINER Bruce Merry "bmerry@ska.ac.za"
+LABEL maintainer="sdpdev@ska.ac.za"
 
 # Enable Python 3 venv
 ENV PATH="$PATH_PYTHON3" VIRTUAL_ENV="$VIRTUAL_ENV_PYTHON3"
@@ -16,7 +16,7 @@ RUN python ./setup.py clean && pip install --no-deps . && pip check
 ########################################################################
 
 FROM sdp-docker-registry.kat.ac.za:5000/docker-base-runtime
-MAINTAINER Bruce Merry "bmerry@ska.ac.za"
+LABEL maintainer="sdpdev@ska.ac.za"
 
 COPY --from=build --chown=kat:kat /home/kat/ve3 /home/kat/ve3
 ENV PATH="$PATH_PYTHON3" VIRTUAL_ENV="$VIRTUAL_ENV_PYTHON3"
