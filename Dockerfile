@@ -1,4 +1,6 @@
-FROM sdp-docker-registry.kat.ac.za:5000/docker-base-build as build
+ARG KATSDPDOCKERBASE_REGISTRY=quay.io/ska-sa
+
+FROM $KATSDPDOCKERBASE_REGISTRY/docker-base-build as build
 LABEL maintainer="sdpdev+katsdpcam2telstate@ska.ac.za"
 
 # Enable Python 3 venv
@@ -15,7 +17,7 @@ RUN python ./setup.py clean && pip install --no-deps . && pip check
 
 ########################################################################
 
-FROM sdp-docker-registry.kat.ac.za:5000/docker-base-runtime
+FROM $KATSDPDOCKERBASE_REGISTRY/docker-base-runtime
 LABEL maintainer="sdpdev+katsdpcam2telstate@ska.ac.za"
 
 COPY --from=build --chown=kat:kat /home/kat/ve3 /home/kat/ve3
