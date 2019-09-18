@@ -8,4 +8,4 @@ katsdp.setDependencies([
     'ska-sa/katsdpservices/master',
     'ska-sa/katsdptelstate/master'])
 katsdp.standardBuild(python2: false, python3: true, push_external: true)
-katsdp.mail('bmerry@ska.ac.za')
+katsdp.mail('sdpdev+katsdpcam2telstate@ska.ac.za')

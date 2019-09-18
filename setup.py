@@ -6,7 +6,7 @@ setup(
     name="katsdpcam2telstate",
     description="MeerKAT sensor capture",
     author="MeerKAT SDP team",
-    author_email="sdpdev@ska.ac.za",
+    author_email="sdpdev+katsdpcam2telstate@ska.ac.za",
     packages=find_packages(),
     scripts=['scripts/cam2telstate.py'],
     setup_requires=['katversion'],
