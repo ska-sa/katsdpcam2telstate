@@ -4,9 +4,9 @@ from setuptools import setup, find_packages
 
 setup(
     name="katsdpcam2telstate",
-    description="Karoo Array Telescope Data Capture",
-    author="Bruce Merry",
-    author_email="bmerry@ska.ac.za",
+    description="MeerKAT sensor capture",
+    author="MeerKAT SDP team",
+    author_email="sdpdev+katsdpcam2telstate@ska.ac.za",
     packages=find_packages(),
     scripts=['scripts/cam2telstate.py'],
     setup_requires=['katversion'],
