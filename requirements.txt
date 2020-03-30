@@ -15,7 +15,7 @@ pygelf                       # via katsdpservices
 omnijson                     # via katportalclient
 redis                        # via katsdptelstate
 terminaltables               # via aiomonitor
-tornado==6.0.2
+tornado
 ujson                        # via katportalclient
 katsdpservices @ git+https://github.com/ska-sa/katsdpservices
 katsdptelstate @ git+https://github.com/ska-sa/katsdptelstate
