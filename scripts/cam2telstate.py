@@ -268,6 +268,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument('--url', type=str, help='WebSocket URL to connect to')
     parser.add_argument('--namespace', type=str,
                         help='Namespace to create in katportal [UUID]')
+    parser.add_argument('--receptors', type=str,
+                        help='Comma-separated list of receptors')
     parser.add_argument('-a', '--host', type=str, metavar='HOST', default='',
                         help='Hostname to bind for katcp interface')
     parser.add_argument('-p', '--port', type=int, metavar='N', default=2047,
@@ -280,6 +282,7 @@ def parse_args() -> argparse.Namespace:
         parser.error('argument --telstate is required')
     if args.url is None:
         parser.error('argument --url is required')
+    # TODO: make --receptors required too, once katsdpcontroller is updated
     return args
 
 
@@ -340,11 +343,13 @@ class Client:
 
     async def get_receptors(self) -> List[str]:
         """Get the list of receptors"""
+        if self._args.receptors is not None:
+            return self._args.receptors.split(',')
         value = await self.get_sensor_value('{}_pool_resources'.format(self._sub_name))
         resources = value.split(',')
         receptors = []
         for resource in resources:
-            if re.match(r'^m\d+$', resource):
+            if re.match(r'^[a-zA-Z]\d+$', resource):
                 receptors.append(resource)
         return receptors
 
