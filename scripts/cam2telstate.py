@@ -39,7 +39,7 @@ def convert_channel_mask(value: object) -> np.ndarray:
 
     This sensor has two possible formats:
     - old: single string of 0's and 1's
-    - new: JSON array of strings, each consistenting of 0's and 1's
+    - new: JSON array of strings, each consisting of 0's and 1's
     """
     if not isinstance(value, str):
         return None
