@@ -308,7 +308,7 @@ class Client:
         """Parse the stream information from telstate.
 
         Populate the instrument list, the :attr:`streams_with_type` dictionary, and
-        update the period for antenna sensors to at most half a dump.
+        update the period for position sensors to at most half a dump.
         """
         sdp_config = self._telstate['sdp_config']
         for name, stream in sdp_config.get('inputs', {}).items():
@@ -319,7 +319,7 @@ class Client:
         for name, stream in sdp_config.get('outputs', {}).items():
             if stream['type'] == 'sdp.vis':
                 self._period = min(self._period, 0.5 * stream['output_int_time'])
-        self._logger.info('Sampling antennas every %.2f s', self._period)
+        self._logger.info('Sampling position sensors every %.2f s', self._period)
 
     async def get_sensor_value(self, sensor: str) -> Any:
         """Get the current value of a sensor.
