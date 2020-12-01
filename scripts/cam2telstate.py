@@ -54,7 +54,9 @@ class Sensor:
         a list, a copy of the sensor is placed in telstate for each name in
         the list.
     sampling_strategy_and_params : str, optional
-        Sampling method to pass to katportalclient
+        Sampling method to pass to katportalclient. It is passed through
+        :meth:`str.format`, with `period` replaced by a period computed from
+        the integration times of the streams.
     immutable : bool, optional
         Passed to :meth:`katsdptelstate.TelescopeState.add`
     convert : callable, optional
@@ -142,10 +144,10 @@ SENSORS = [
     Sensor('${receptor}_observer', immutable=True),
     Sensor('${receptor}_activity'),
     Sensor('${receptor}_target'),
-    Sensor('${receptor}_pos_request_scan_azim', sampling_strategy_and_params='period 0.4'),
-    Sensor('${receptor}_pos_request_scan_elev', sampling_strategy_and_params='period 0.4'),
-    Sensor('${receptor}_pos_actual_scan_azim', sampling_strategy_and_params='period 0.4'),
-    Sensor('${receptor}_pos_actual_scan_elev', sampling_strategy_and_params='period 0.4'),
+    Sensor('${receptor}_pos_request_scan_azim', sampling_strategy_and_params='period {period}'),
+    Sensor('${receptor}_pos_request_scan_elev', sampling_strategy_and_params='period {period}'),
+    Sensor('${receptor}_pos_actual_scan_azim', sampling_strategy_and_params='period {period}'),
+    Sensor('${receptor}_pos_actual_scan_elev', sampling_strategy_and_params='period {period}'),
     Sensor('${receptor}_pos_adjust_pointm_azim'),
     Sensor('${receptor}_pos_adjust_pointm_elev'),
     Sensor('${receptor}_${digitiser}_noise_diode'),
@@ -163,8 +165,8 @@ SENSORS = [
     Sensor('${cbf}_loaded_delay_correction', immutable=True),
     Sensor('${cbf}_delay_centre_frequency'),
     Sensor('${cbf}_delay_adjustments', convert=json.loads),
-    Sensor('${cbf}_pos_request_offset_azim', sampling_strategy_and_params='period 0.4'),
-    Sensor('${cbf}_pos_request_offset_elev', sampling_strategy_and_params='period 0.4'),
+    Sensor('${cbf}_pos_request_offset_azim', sampling_strategy_and_params='period {period}'),
+    Sensor('${cbf}_pos_request_offset_elev', sampling_strategy_and_params='period {period}'),
     Sensor('${cbf}_cmc_version_list', immutable=True),
     # SDP proxy sensors
     Sensor('${sdp}_spmc_version_list', immutable=True),
@@ -300,16 +302,24 @@ class Client:
         self._sdp_name = None      #: Set once connected
         self._waiting = 0          #: Number of sensors whose initial value is still outstanding
         self._stopped = asyncio.Event()    #: Set after shutdown
+        self._period = 2.0         #: Period used for ``{period}`` in strategies
 
     def parse_streams(self) -> None:
-        """Parse the stream information from telstate to populate the
-        instruments and the stream_types dictionary."""
+        """Parse the stream information from telstate.
+
+        Populate the instrument list, the :attr:`streams_with_type` dictionary, and
+        update the period for position sensors to at most half a dump.
+        """
         sdp_config = self._telstate['sdp_config']
         for name, stream in sdp_config.get('inputs', {}).items():
             if stream['type'].startswith('cbf.'):
                 instrument_name = stream['instrument_dev_name']
                 self._instruments.add(instrument_name)
                 self._streams_with_type[name] = stream['type']
+        for name, stream in sdp_config.get('outputs', {}).items():
+            if stream['type'] == 'sdp.vis':
+                self._period = min(self._period, 0.5 * stream['output_int_time'])
+        self._logger.info('Sampling position sensors every %.2f s', self._period)
 
     async def get_sensor_value(self, sensor: str) -> Any:
         """Get the current value of a sensor.
@@ -447,6 +457,7 @@ class Client:
             for sensor in sensors:
                 by_strategy[sensor.sampling_strategy_and_params].append(sensor)
             for (strategy, strategy_sensors) in by_strategy.items():
+                strategy = strategy.format(period=self._period)
                 regex = '^(?:' + '|'.join(re.escape(sensor.cam_name)
                                           for sensor in strategy_sensors) + ')$'
                 status = await self._portal_client.set_sampling_strategies(
