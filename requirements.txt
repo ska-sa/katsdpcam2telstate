@@ -1,21 +1,9 @@
-aioconsole                   # via aiomonitor
+-c https://raw.githubusercontent.com/ska-sa/katsdpdockerbase/master/docker-base-build/base-requirements.txt
+
 aiokatcp
-aiomonitor
-async-timeout                # via aiokatcp
-certifi                      # via tornado
-decorator                    # via aiokatcp
-future                       # via katportalclient
-hiredis                      # via katsdptelstate
+hiredis                      # speeds up katsdptelstate
 katportalclient
 katversion
-msgpack                      # via katsdptelstate
-netifaces                    # via katsdpservices
 numpy
-pygelf                       # via katsdpservices
-omnijson                     # via katportalclient
-redis                        # via katsdptelstate
-terminaltables               # via aiomonitor
-tornado
-ujson                        # via katportalclient
-katsdpservices @ git+https://github.com/ska-sa/katsdpservices
+katsdpservices[argparse,aiomonitor] @ git+https://github.com/ska-sa/katsdpservices
 katsdptelstate @ git+https://github.com/ska-sa/katsdptelstate
