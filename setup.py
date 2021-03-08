@@ -13,7 +13,6 @@ setup(
     install_requires=[
         'numpy',
         'aiokatcp',
-        'aiomonitor',
         'katsdpservices[argparse,aiomonitor]',
         'katsdptelstate',
         'katportalclient',
