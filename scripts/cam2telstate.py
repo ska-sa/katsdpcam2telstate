@@ -244,7 +244,11 @@ SENSORS = [
     Sensor('anc_wind_direction'),
     Sensor('anc_mean_wind_speed'),
     Sensor('anc_siggen_ku_frequency', ignore_missing=True),
-    Sensor('anc_tfr_ktt_gnss'),
+    # CAM is changing from anc_tfr_ktt_gnss to tfrmon_tfr_ktt_gnss. Remove the
+    # former (and the ignore_missing on the latter) once the change has been
+    # deployed for a while.
+    Sensor('anc_tfr_ktt_gnss', ignore_missing=True),
+    Sensor('tfrmon_tfr_ktt_gnss', ignore_missing=True),
     Sensor('mcp_dmc_version_list', immutable=True)
 ]
 
