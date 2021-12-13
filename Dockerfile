@@ -11,7 +11,7 @@ COPY requirements.txt /tmp/install/requirements.txt
 RUN install_pinned.py -r /tmp/install/requirements.txt
 
 # Install current package
-COPY . /tmp/install/katsdpcam2telstate
+COPY --chown=kat:kat . /tmp/install/katsdpcam2telstate
 WORKDIR /tmp/install/katsdpcam2telstate
 RUN python ./setup.py clean && pip install --no-deps . && pip check
 
