@@ -179,19 +179,24 @@ SENSORS = [
     #
     # CBF sensors that are instrument-specific
     #
-    Sensor('${instrument}_compile_date_feng', immutable=True),
+    # TODO: all the instrument sensors are currently marked ignore_missing=True
+    # because they won't be available on the MeerKAT+ GPU CBF. The version sensors
+    # have been removed, while the digitiser sensors have moved to streams instead.
+    # Once we drop support for the old MeerKAT CBF, make the stream sensors required
+    # again and remove the version sensors.
+    Sensor('${instrument}_compile_date_feng', immutable=True, ignore_missing=True),
     # An instrument with combined X/B engines has only compile_date_xeng;
     # one with B engines only has compile_date_beng.
     Sensor('${instrument}_compile_date_xeng', immutable=True, ignore_missing=True),
     Sensor('${instrument}_compile_date_beng', immutable=True, ignore_missing=True),
-    Sensor('${instrument}_compile_date_corr2', immutable=True),
-    Sensor('${instrument}_md5_bitstream_feng', immutable=True),
-    Sensor('${instrument}_md5_bitstream_xeng', immutable=True),
-    Sensor('${instrument}_corr2_version', immutable=True),
-    Sensor('${instrument}_adc_sample_rate', immutable=True),
-    Sensor('${instrument}_n_inputs', immutable=True),
-    Sensor('${instrument}_scale_factor_timestamp', immutable=True),
-    Sensor('${instrument}_sync_time', immutable=True),
+    Sensor('${instrument}_compile_date_corr2', immutable=True, ignore_missing=True),
+    Sensor('${instrument}_md5_bitstream_feng', immutable=True, ignore_missing=True),
+    Sensor('${instrument}_md5_bitstream_xeng', immutable=True, ignore_missing=True),
+    Sensor('${instrument}_corr2_version', immutable=True, ignore_missing=True),
+    Sensor('${instrument}_adc_sample_rate', immutable=True, ignore_missing=True),
+    Sensor('${instrument}_n_inputs', immutable=True, ignore_missing=True),
+    Sensor('${instrument}_scale_factor_timestamp', immutable=True, ignore_missing=True),
+    Sensor('${instrument}_sync_time', immutable=True, ignore_missing=True),
     #
     # CBF sensors that are stream-specific
     #
@@ -203,6 +208,16 @@ SENSORS = [
            sdp_name='${stream.cbf.antenna_channelised_voltage}_ticks_between_spectra',
            immutable=True),
     Sensor('${stream.cbf.antenna_channelised_voltage}_n_chans', immutable=True),
+    # TODO: these are MeerKAT+ versions of the digitiser sensors previously found
+    # at the instrument level. Once the old CBF is dropped, make these required.
+    Sensor('${stream.cbf.antenna_channelised_voltage}_adc_sample_rate',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_n_inputs',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_scale_factor_timestamp',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_sync_time',
+           immutable=True, ignore_missing=True),
     # TODO: all the inputn sensors are currently marked ignore_missing=True
     # because they're substituted with both the input number and input label,
     # to support multiple versions of CBF. Once CBF have settled on one, remove
