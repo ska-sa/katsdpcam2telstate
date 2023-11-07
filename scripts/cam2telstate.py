@@ -140,7 +140,9 @@ STREAM_TYPES = {
 STATUS_VALID_VALUE = {'nominal', 'warn', 'error'}
 #: Templates for sensors
 SENSORS = [
+    #
     # Receptor sensors
+    #
     Sensor('${receptor}_observer', immutable=True),
     Sensor('${receptor}_activity'),
     Sensor('${receptor}_target'),
@@ -158,7 +160,9 @@ SENSORS = [
     Sensor('${receptor}_${receiver}_serial_number', immutable=True),
     Sensor('${receptor}_data_suspect'),
     Sensor('${receptor}_ap_version_list', immutable=True),
+    #
     # CBF proxy sensors
+    #
     Sensor('${cbf}_target'),
     Sensor('${cbf}_auto_delay_enabled'),
     Sensor('${cbf}_input_labels', immutable=True, convert=comma_split),
@@ -168,9 +172,13 @@ SENSORS = [
     Sensor('${cbf}_pos_request_offset_azim', sampling_strategy_and_params='period {period}'),
     Sensor('${cbf}_pos_request_offset_elev', sampling_strategy_and_params='period {period}'),
     Sensor('${cbf}_cmc_version_list', immutable=True),
+    #
     # SDP proxy sensors
+    #
     Sensor('${sdp}_spmc_version_list', immutable=True),
+    #
     # CBF sensors that are instrument-specific
+    #
     Sensor('${instrument}_compile_date_feng', immutable=True),
     # An instrument with combined X/B engines has only compile_date_xeng;
     # one with B engines only has compile_date_beng.
@@ -184,26 +192,17 @@ SENSORS = [
     Sensor('${instrument}_n_inputs', immutable=True),
     Sensor('${instrument}_scale_factor_timestamp', immutable=True),
     Sensor('${instrument}_sync_time', immutable=True),
+    #
     # CBF sensors that are stream-specific
-    Sensor('${sub_stream.cbf.baseline_correlation_products}_bandwidth', immutable=True),
-    Sensor('${stream.cbf.baseline_correlation_products}_bls_ordering',
-           immutable=True, convert=np.safe_eval),
-    Sensor('${stream.cbf.baseline_correlation_products}_int_time', immutable=True),
-    Sensor('${stream.cbf.baseline_correlation_products}_n_accs', immutable=True),
-    Sensor('${stream.cbf.baseline_correlation_products}_n_chans_per_substream', immutable=True),
-    Sensor('${sub_stream.cbf.tied_array_channelised_voltage}_bandwidth', immutable=True),
-    Sensor('${stream.cbf.tied_array_channelised_voltage}_source_indices',
-           immutable=True, convert=np.safe_eval),
-    Sensor('${stream.cbf.tied_array_channelised_voltage}_weight', convert=np.safe_eval),
-    Sensor('${stream.cbf.tied_array_channelised_voltage}_n_chans_per_substream', immutable=True),
-    Sensor('${stream.cbf.tied_array_channelised_voltage}_spectra_per_heap', immutable=True),
+    #
+    # antenna channelised voltage stream
+    Sensor('${sub_stream.cbf.antenna_channelised_voltage}_bandwidth', immutable=True),
+    Sensor('${sub_stream.cbf.antenna_channelised_voltage}_centre_frequency',
+           sdp_name='${sub_stream.cbf.antenna_channelised_voltage}_center_freq', immutable=True),
     Sensor('${stream.cbf.antenna_channelised_voltage}_n_samples_between_spectra',
            sdp_name='${stream.cbf.antenna_channelised_voltage}_ticks_between_spectra',
            immutable=True),
     Sensor('${stream.cbf.antenna_channelised_voltage}_n_chans', immutable=True),
-    Sensor('${sub_stream.cbf.antenna_channelised_voltage}_bandwidth', immutable=True),
-    Sensor('${sub_stream.cbf.antenna_channelised_voltage}_centre_frequency',
-           sdp_name='${sub_stream.cbf.antenna_channelised_voltage}_center_freq', immutable=True),
     # TODO: all the inputn sensors are currently marked ignore_missing=True
     # because they're substituted with both the input number and input label,
     # to support multiple versions of CBF. Once CBF have settled on one, remove
@@ -216,13 +215,31 @@ SENSORS = [
            ignore_missing=True, convert=np.safe_eval),
     Sensor('${stream.cbf.antenna_channelised_voltage}_${inputn}_eq',
            ignore_missing=True, convert=np.safe_eval),
+    # baseline correlation products stream
+    Sensor('${sub_stream.cbf.baseline_correlation_products}_bandwidth', immutable=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_bls_ordering',
+           immutable=True, convert=np.safe_eval),
+    Sensor('${stream.cbf.baseline_correlation_products}_int_time', immutable=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_n_accs', immutable=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_n_chans_per_substream', immutable=True),
+    # tied-array channelised voltage stream
+    Sensor('${sub_stream.cbf.tied_array_channelised_voltage}_bandwidth', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_source_indices',
+           immutable=True, convert=np.safe_eval),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_weight', convert=np.safe_eval),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_n_chans_per_substream', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_spectra_per_heap', immutable=True),
+    #
     # Subarray sensors
-    Sensor('${subarray}_config_label', immutable=True),
+    #
     Sensor('${subarray}_band', immutable=True),
-    Sensor('${subarray}_product', immutable=True),
-    Sensor('${subarray}_sub_nr', immutable=True),
+    Sensor('${subarray}_config_label', immutable=True),
     Sensor('${subarray}_dump_rate', immutable=True),
     Sensor('${subarray}_pool_resources', immutable=True),
+    Sensor('${subarray}_product', immutable=True),
+    Sensor('${subarray}_sub_nr', immutable=True),
+    Sensor('${subarray}_state'),
+    # CBF stream embellishments produced at subarray level
     Sensor('${sub_stream.cbf.antenna_channelised_voltage}_channel_mask',
            convert=convert_bitmask),
     # TODO: remove ignore_missing once CAM implements this
@@ -236,13 +253,14 @@ SENSORS = [
            convert=convert_bitmask),
     Sensor('${sub_stream.cbf.tied_array_channelised_voltage}_precise_time_epoch_fraction'),
     Sensor('${sub_stream.cbf.tied_array_channelised_voltage}_precise_time_uncertainty'),
-    Sensor('${subarray}_state'),
+    #
     # Misc other sensors
+    #
     Sensor('anc_air_pressure'),
     Sensor('anc_air_relative_humidity'),
     Sensor('anc_air_temperature'),
-    Sensor('anc_wind_direction'),
     Sensor('anc_mean_wind_speed'),
+    Sensor('anc_wind_direction'),
     Sensor('anc_siggen_ku_frequency', ignore_missing=True),
     # CAM is changing from anc_tfr_ktt_gnss to tfrmon_tfr_ktt_gnss. Remove the
     # former (and the ignore_missing on the latter) once the change has been
