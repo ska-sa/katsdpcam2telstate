@@ -34,6 +34,27 @@ def convert_bitmask(value: object) -> np.ndarray:
         return np.array([c == '1' for c in value])
 
 
+def detect_cbf_api_version(proxy: Any) -> str:
+    """Detect CBF proxy API version (MK or MK+).
+
+    Parameters
+    ----------
+    proxy : :class:`katcp.KATCPClientResource` object
+        CBF proxy resource (typically kat.cbf or kat.cbf_1)
+
+    Returns
+    -------
+    str
+        'MK+' if using data-cbfplus-proxy, 'MK' otherwise,
+        empty string if version cannot be determined
+    """
+    try:
+        api_version = proxy.sensor.api_version.get_value()
+        return 'MK+' if api_version.startswith('data-cbfplus-proxy') else 'MK'
+    except (ValueError, AttributeError):
+        return ''
+
+
 class Template(string.Template):
     """Template for a sensor name."""
 
@@ -400,6 +421,37 @@ class Client:
         input_labels = await self.get_sensor_value('{}_input_labels'.format(self._cbf_name))
         input_labels = input_labels.split(',')
         band = await self.get_sensor_value('{}_band'.format(self._sub_name))
+
+        # Retrieve CBF API version and determine instrument type
+        try:
+            api_version_val = await self.get_sensor_value(
+                '{}_api_version'.format(self._cbf_name))
+        except Exception as e:
+            self._logger.warning("Failed to retrieve CBF API version, defaulting to '': %s", e)
+            api_version_val = ''
+
+        class _Sensor:
+            def __init__(self, value: str) -> None:
+                self._value = value
+
+            def get_value(self) -> str:
+                return self._value
+
+        class _ProxySensors:
+            def __init__(self, value: str) -> None:
+                self.api_version = _Sensor(value)
+
+        class _Proxy:
+            def __init__(self, value: str) -> None:
+                self.sensor = _ProxySensors(value)
+
+        cbf_instrument_type = detect_cbf_api_version(_Proxy(api_version_val))
+        try:
+            self._telstate.add('cbf_instrument_type', cbf_instrument_type, immutable=True)
+            self._logger.info("Recorded CBF instrument type: %s", cbf_instrument_type)
+        except katsdptelstate.ImmutableKeyError:
+            self._logger.error("Failed to set cbf_instrument_type, "
+                               "key already exists and is immutable")
 
         rx_name = 'rsc_rx{}'.format(band)
         dig_name = 'dig_{}_band'.format(band)
