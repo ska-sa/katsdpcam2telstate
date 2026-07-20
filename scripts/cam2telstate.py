@@ -172,6 +172,7 @@ SENSORS = [
     Sensor('${cbf}_pos_request_offset_azim', sampling_strategy_and_params='period {period}'),
     Sensor('${cbf}_pos_request_offset_elev', sampling_strategy_and_params='period {period}'),
     Sensor('${cbf}_cmc_version_list', immutable=True),
+    Sensor('${cbf}_api_version', immutable=True),
     #
     # SDP proxy sensors
     #
