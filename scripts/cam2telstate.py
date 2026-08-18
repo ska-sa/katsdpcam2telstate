@@ -288,9 +288,9 @@ SENSORS = [
 ]
 
 # Mapping from receiver band identity to SPF feed package index number
-BAND_TO_SPF_INDEX = {
-    'l': 2,   # L-band -> SPF2
-    's': 3,   # S-band -> SPF3
+MK_BAND_TO_SKA_MID_BAND = {
+    'l': '2',   # L-band -> SPF2
+    's': '3',   # S-band -> SPF3
 }
 
 
@@ -411,12 +411,7 @@ class Client:
 
         rx_name = 'rsc_rx{}'.format(band)
         dig_name = 'dig_{}_band'.format(band)
-
-        mke_band_substitutions: List[Tuple[str, List[str]]] = []
-        if band in BAND_TO_SPF_INDEX:
-            mke_index = str(BAND_TO_SPF_INDEX[band])
-            mke_band_substitutions.append((mke_index, [mke_index]))
-
+        mke_band = MK_BAND_TO_SKA_MID_BAND.get(band, 'unknown')
         # Build table of names for expanding sensor templates
         substitutions: Dict[str, List[Tuple[str, List[str]]]] = {
             'receptor': [(name, [name]) for name in receptors],
@@ -430,7 +425,7 @@ class Client:
             'stream': [],
             'sub_stream': [],
             'stream.cbf.tied_array_channelised_voltage.inputn': [],
-            'mke_band': mke_band_substitutions
+            'mke_band': [(mke_band, [mke_band])],
         }
         for stream_type in STREAM_TYPES:
             substitutions['stream.' + stream_type] = []
