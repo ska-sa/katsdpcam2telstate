@@ -158,6 +158,7 @@ SENSORS = [
     Sensor('${receptor}_ap_tilt_corr_azim'),
     Sensor('${receptor}_ap_tilt_corr_elev'),
     Sensor('${receptor}_${receiver}_serial_number', immutable=True),
+    Sensor('${receptor}_spfc_serialNumbers_${mke_band}', immutable=True, ignore_missing=True),
     Sensor('${receptor}_data_suspect'),
     Sensor('${receptor}_ap_version_list', immutable=True),
     #
@@ -286,6 +287,12 @@ SENSORS = [
     Sensor('mcp_dmc_version_list', immutable=True)
 ]
 
+# Mapping from receiver band identity to SPF feed package index number
+MK_BAND_TO_SKA_MID_BAND = {
+    'l': '2',   # L-band -> SPF2
+    's': '3',   # S-band -> SPF3
+}
+
 
 def parse_args() -> argparse.Namespace:
     parser = katsdpservices.ArgumentParser()
@@ -404,6 +411,7 @@ class Client:
 
         rx_name = 'rsc_rx{}'.format(band)
         dig_name = 'dig_{}_band'.format(band)
+        mke_band = MK_BAND_TO_SKA_MID_BAND.get(band, 'unknown')
         # Build table of names for expanding sensor templates
         substitutions: Dict[str, List[Tuple[str, List[str]]]] = {
             'receptor': [(name, [name]) for name in receptors],
@@ -416,7 +424,8 @@ class Client:
             'instrument': [],
             'stream': [],
             'sub_stream': [],
-            'stream.cbf.tied_array_channelised_voltage.inputn': []
+            'stream.cbf.tied_array_channelised_voltage.inputn': [],
+            'mke_band': [(mke_band, [mke_band])],
         }
         for stream_type in STREAM_TYPES:
             substitutions['stream.' + stream_type] = []
