@@ -158,6 +158,7 @@ SENSORS = [
     Sensor('${receptor}_ap_tilt_corr_azim'),
     Sensor('${receptor}_ap_tilt_corr_elev'),
     Sensor('${receptor}_${receiver}_serial_number', immutable=True),
+    Sensor('${receptor}_spfc_serialNumbers_${mke_band}', immutable=True, ignore_missing=True),
     Sensor('${receptor}_data_suspect'),
     Sensor('${receptor}_ap_version_list', immutable=True),
     #
@@ -173,6 +174,7 @@ SENSORS = [
     Sensor('${cbf}_pos_request_offset_elev', sampling_strategy_and_params='period {period}'),
     Sensor('${cbf}_cmc_version_list', immutable=True),
     Sensor('${cbf}_api_version', immutable=True),
+    Sensor('${cbf}_product_config', convert=json.loads, immutable=True, ignore_missing=True),
     #
     # SDP proxy sensors
     #
@@ -219,6 +221,34 @@ SENSORS = [
            immutable=True, ignore_missing=True),
     Sensor('${stream.cbf.antenna_channelised_voltage}_sync_time',
            immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_pass_bandwidth',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_adc_bits',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_feng_out_bits_per_sample',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_pfb_group_delay',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_ddc_group_delay',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_filter_group_delay',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_pfb_taps',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_ddc_taps',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_window_function',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_w_cutoff',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_weight_pass',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_version',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_source',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_revision',
+           immutable=True, ignore_missing=True),
     # TODO: all the inputn sensors are currently marked ignore_missing=True
     # because they're substituted with both the input number and input label,
     # to support multiple versions of CBF. Once CBF have settled on one, remove
@@ -231,6 +261,14 @@ SENSORS = [
            ignore_missing=True, convert=np.safe_eval),
     Sensor('${stream.cbf.antenna_channelised_voltage}_${inputn}_eq',
            ignore_missing=True, convert=np.safe_eval),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_${inputn}_dither_seed',
+           ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_${inputn}_dig_clip_cnt',
+           ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_${inputn}_feng_clip_cnt',
+           ignore_missing=True),
+    Sensor('${stream.cbf.antenna_channelised_voltage}_${inputn}_dig_rms_dbfs',
+           ignore_missing=True),
     # baseline correlation products stream
     Sensor('${sub_stream.cbf.baseline_correlation_products}_bandwidth', immutable=True),
     Sensor('${stream.cbf.baseline_correlation_products}_bls_ordering',
@@ -238,6 +276,14 @@ SENSORS = [
     Sensor('${stream.cbf.baseline_correlation_products}_int_time', immutable=True),
     Sensor('${stream.cbf.baseline_correlation_products}_n_accs', immutable=True),
     Sensor('${stream.cbf.baseline_correlation_products}_n_chans_per_substream', immutable=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_pass_bandwidth', immutable=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_xeng_out_bits_per_sample', immutable=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_version',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_source',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.baseline_correlation_products}_revision',
+           immutable=True, ignore_missing=True),
     # tied-array channelised voltage stream
     Sensor('${sub_stream.cbf.tied_array_channelised_voltage}_bandwidth', immutable=True),
     Sensor('${stream.cbf.tied_array_channelised_voltage}_source_indices',
@@ -245,6 +291,21 @@ SENSORS = [
     Sensor('${stream.cbf.tied_array_channelised_voltage}_weight', convert=np.safe_eval),
     Sensor('${stream.cbf.tied_array_channelised_voltage}_n_chans_per_substream', immutable=True),
     Sensor('${stream.cbf.tied_array_channelised_voltage}_spectra_per_heap', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_pass_bandwidth', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_beng_out_bits_per_sample', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_n_chan_range',
+           immutable=True, convert=np.safe_eval),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_dither_seed', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_delay',
+           immutable=True, convert=np.safe_eval),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_quantiser_gain', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_beng_clip_cnt', immutable=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_version',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_source',
+           immutable=True, ignore_missing=True),
+    Sensor('${stream.cbf.tied_array_channelised_voltage}_revision',
+           immutable=True, ignore_missing=True),
     #
     # Subarray sensors
     #
@@ -285,6 +346,12 @@ SENSORS = [
     Sensor('tfrmon_tfr_ktt_gnss', ignore_missing=True),
     Sensor('mcp_dmc_version_list', immutable=True)
 ]
+
+# Mapping from receiver band identity to SPF feed package index number
+MK_BAND_TO_SKA_MID_BAND = {
+    'l': '2',   # L-band -> SPF2
+    's': '3',   # S-band -> SPF3
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -404,6 +471,7 @@ class Client:
 
         rx_name = 'rsc_rx{}'.format(band)
         dig_name = 'dig_{}_band'.format(band)
+        mke_band = MK_BAND_TO_SKA_MID_BAND.get(band, 'unknown')
         # Build table of names for expanding sensor templates
         substitutions: Dict[str, List[Tuple[str, List[str]]]] = {
             'receptor': [(name, [name]) for name in receptors],
@@ -416,7 +484,8 @@ class Client:
             'instrument': [],
             'stream': [],
             'sub_stream': [],
-            'stream.cbf.tied_array_channelised_voltage.inputn': []
+            'stream.cbf.tied_array_channelised_voltage.inputn': [],
+            'mke_band': [(mke_band, [mke_band])],
         }
         for stream_type in STREAM_TYPES:
             substitutions['stream.' + stream_type] = []
