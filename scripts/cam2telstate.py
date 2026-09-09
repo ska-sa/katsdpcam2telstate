@@ -135,7 +135,8 @@ class Sensor:
 STREAM_TYPES = {
     'cbf.antenna_channelised_voltage',
     'cbf.baseline_correlation_products',
-    'cbf.tied_array_channelised_voltage'
+    'cbf.tied_array_channelised_voltage',
+    'cbf.tied_array_resampled_voltage'
 }
 STATUS_VALID_VALUE = {'nominal', 'warn', 'error'}
 #: Templates for sensors
@@ -245,6 +246,15 @@ SENSORS = [
     Sensor('${stream.cbf.tied_array_channelised_voltage}_weight', convert=np.safe_eval),
     Sensor('${stream.cbf.tied_array_channelised_voltage}_n_chans_per_substream', immutable=True),
     Sensor('${stream.cbf.tied_array_channelised_voltage}_spectra_per_heap', immutable=True),
+    # tied-array resampled voltage stream
+    Sensor('${stream.cbf.tied_array_resampled_voltage}_bandwidth', immutable=True),
+    Sensor('${stream.cbf.tied_array_resampled_voltage}_n_chans', immutable=True),
+    Sensor('${stream.cbf.tied_array_resampled_voltage}_veng_out_bits_per_sample',
+           immutable=True),
+    Sensor('${stream.cbf.tied_array_resampled_voltage}_pol_ordering',
+           immutable=True, convert=json.loads),
+    Sensor('${stream.cbf.tied_array_resampled_voltage.thread}_mean_power',
+           sdp_name='${stream.cbf.tied_array_resampled_voltage.thread}.mean-power'),
     #
     # Subarray sensors
     #
@@ -322,6 +332,7 @@ class Client:
     _sensors: Optional[Dict[str, Sensor]]
     _instruments: Set[str]
     _streams_with_type: Dict[str, str]
+    _vdif_streams_by_source: Dict[str, List[str]]
     _sub_name: Optional[str]
     _sdp_name: Optional[str]
 
@@ -335,6 +346,7 @@ class Client:
         self._sensors = None       #: Dictionary from CAM name to sensor object
         self._instruments = set()  #: Set of instruments available in the current subarray
         self._streams_with_type = {}  #: Dictionary mapping stream names to stream types
+        self._vdif_streams_by_source = {}  #: VDIF output names indexed by their CBF source
         self._sub_name = None      #: Set once connected
         self._cbf_name = None      #: Set once connected
         self._sdp_name = None      #: Set once connected
@@ -357,6 +369,9 @@ class Client:
         for name, stream in sdp_config.get('outputs', {}).items():
             if stream['type'] == 'sdp.vis':
                 self._period = min(self._period, 0.5 * stream['output_int_time'])
+            elif stream['type'] == 'sdp.vdif':
+                source = stream['src_streams'][0]
+                self._vdif_streams_by_source.setdefault(source, []).append(name)
         self._logger.info('Sampling position sensors every %.2f s', self._period)
 
     async def get_sensor_value(self, sensor: str) -> Any:
@@ -416,7 +431,8 @@ class Client:
             'instrument': [],
             'stream': [],
             'sub_stream': [],
-            'stream.cbf.tied_array_channelised_voltage.inputn': []
+            'stream.cbf.tied_array_channelised_voltage.inputn': [],
+            'stream.cbf.tied_array_resampled_voltage.thread': []
         }
         for stream_type in STREAM_TYPES:
             substitutions['stream.' + stream_type] = []
@@ -459,6 +475,20 @@ class Client:
                     else:
                         self._logger.warning('Out of range source index %d on %s',
                                              index, full_stream_name)
+            elif stream_type == 'cbf.tied_array_resampled_voltage':
+                pol_ordering = await self.get_sensor_value(cam_stream + '_pol_ordering')
+                pol_ordering = json.loads(pol_ordering)
+                n_chans = int(await self.get_sensor_value(cam_stream + '_n_chans'))
+                sdp_streams = [full_stream_name]
+                sdp_streams.extend(self._vdif_streams_by_source.get(full_stream_name, []))
+                sublist = substitutions['stream.{}.thread'.format(stream_type)]
+                for pol in pol_ordering:
+                    for channel in range(n_chans):
+                        thread = '{}{}'.format(pol, channel)
+                        sublist.append(
+                            ('{}_{}'.format(cam_stream, thread),
+                             ['{}.{}'.format(stream, thread) for stream in sdp_streams])
+                        )
 
         sensors: List[Sensor] = []
         for template in SENSORS:
