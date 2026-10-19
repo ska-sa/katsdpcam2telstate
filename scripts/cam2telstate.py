@@ -253,8 +253,7 @@ SENSORS = [
            immutable=True),
     Sensor('${stream.cbf.tied_array_resampled_voltage}_pol_ordering',
            immutable=True, convert=json.loads),
-    Sensor('${stream.cbf.tied_array_resampled_voltage.thread}_mean_power',
-           sdp_name='${stream.cbf.tied_array_resampled_voltage.thread}.mean-power'),
+    Sensor('${stream.cbf.tied_array_resampled_voltage.thread}_mean_power'),
     #
     # Subarray sensors
     #
@@ -482,12 +481,14 @@ class Client:
                 sdp_streams = [full_stream_name]
                 sdp_streams.extend(self._vdif_streams_by_source.get(full_stream_name, []))
                 sublist = substitutions['stream.{}.thread'.format(stream_type)]
+                # n_chans counts resampled channels, not upstream frequency bins:
+                # currently two channels and two polarisations give four sensors.
                 for pol in pol_ordering:
                     for channel in range(n_chans):
                         thread = '{}{}'.format(pol, channel)
                         sublist.append(
                             ('{}_{}'.format(cam_stream, thread),
-                             ['{}.{}'.format(stream, thread) for stream in sdp_streams])
+                             ['{}_{}'.format(stream, thread) for stream in sdp_streams])
                         )
 
         sensors: List[Sensor] = []
